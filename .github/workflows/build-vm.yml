@@ -1,0 +1,101 @@
+# GitHub Actions Workflow for Building Ubuntu 22.04 VM with Packer
+# This workflow is triggered manually and creates a release with the built VM
+
+# Name of the workflow (appears in GitHub Actions UI)
+name: Build Ubuntu 22.04 VM
+
+# Trigger configuration - this workflow only runs when manually triggered
+on:
+  workflow_dispatch:  # Enables manual triggering from GitHub Actions UI
+
+# Jobs define the work to be done
+jobs:
+  # Job name: build-and-release
+  build-and-release:
+    # Run on Ubuntu latest (GitHub-hosted runner)
+    runs-on: ubuntu-latest
+    
+    # Permissions for GITHUB_TOKEN - limit to only what's needed for security
+    permissions:
+      contents: write  # Required to create releases and upload assets
+    
+    # Steps are executed sequentially within the job
+    steps:
+      # Step 1: Checkout the repository code
+      # This downloads the repository files to the runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      # Step 2: Install VirtualBox
+      # VirtualBox is required for Packer to build virtual machines
+      - name: Install VirtualBox
+        run: |
+          # Update package lists
+          sudo apt-get update
+          # Install VirtualBox
+          # -y flag automatically answers yes to prompts
+          sudo apt-get install -y virtualbox
+      
+      # Step 3: Install Packer
+      # Packer is the tool that builds the VM from our configuration
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
+        with:
+          # Specify Packer version (or use 'latest')
+          version: 'latest'
+      
+      # Step 4: Initialize Packer
+      # This downloads any required Packer plugins
+      - name: Initialize Packer
+        run: packer init ubuntu-22.04.pkr.hcl
+      
+      # Step 5: Validate Packer configuration
+      # This checks the .pkr.hcl file for syntax errors before building
+      - name: Validate Packer template
+        run: packer validate ubuntu-22.04.pkr.hcl
+      
+      # Step 6: Build the VM
+      # This is where Packer actually creates the virtual machine
+      - name: Build VM with Packer
+        run: packer build ubuntu-22.04.pkr.hcl
+      
+      # Step 7: Create GitHub Release
+      # This creates a new release and uploads the built VM as an asset
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          # Always use "latest" tag - overwrites previous release
+          tag_name: latest
+          # Release title
+          name: Ubuntu 22.04 VM - Latest Build
+          # Release description (supports Markdown)
+          body: |
+            # Ubuntu 22.04 Virtual Machine
+            
+            Automatically built with Packer on ${{ github.event.repository.updated_at }}
+            
+            ## Details
+            - **OS**: Ubuntu 22.04 LTS Server
+            - **Format**: OVA (VirtualBox VM, compressed in tar.gz)
+            - **Build Date**: $(date +'%Y-%m-%d %H:%M:%S UTC')
+            - **Triggered by**: @${{ github.actor }}
+            
+            ## How to Use
+            1. Download the `ubuntu-22.04.tar.gz` file
+            2. Extract: `tar -xzf ubuntu-22.04.tar.gz`
+            3. Import the `.ova` file into VirtualBox or other virtualization platform
+            4. For VirtualBox: Double-click the .ova file or use File → Import Appliance
+            
+            ## Default Credentials
+            - **Username**: ubuntu
+            - **Password**: ubuntu
+            - **Note**: Change the password after first login!
+          # Mark this as a release (not a draft or pre-release)
+          draft: false
+          prerelease: false
+          # Files to upload as release assets (the built VM)
+          files: |
+            ubuntu-22.04.tar.gz
+        env:
+          # GitHub token for authentication (automatically provided)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

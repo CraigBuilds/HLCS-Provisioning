@@ -1,0 +1,34 @@
+# Packer build artifacts
+# These are generated during the build process and should not be committed
+
+# Output directories created by Packer
+output-*/
+packer_cache/
+
+# Built VM files
+*.qcow2
+*.tar.gz
+*.vmdk
+*.vdi
+*.vhd
+*.ova
+*.ovf
+
+# Packer log files
+packer.log
+crash.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+tmp/

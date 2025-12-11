@@ -1,0 +1,52 @@
+#cloud-config
+# This is a cloud-init configuration file for Ubuntu autoinstall
+# It automates the Ubuntu server installation process
+
+# Autoinstall version - specifies the autoinstall format version
+autoinstall:
+  version: 1
+  
+  # Locale and keyboard settings
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  
+  # Network configuration - use DHCP for automatic network setup
+  network:
+    network:
+      version: 2
+      ethernets:
+        # Configure the first network interface
+        enp1s0:
+          dhcp4: true
+  
+  # Identity configuration - creates the default user account
+  identity:
+    hostname: ubuntu-vm          # Name of the virtual machine
+    username: ubuntu             # Username for the default user
+    password: $6$rounds=4096$saltsaltlettuce$Lp/FV.2oOgew7GbM6Nr8KMGMBn7iFM0x9ZwLqtx6Y3hgY.1nwCmgbQgpORJ9GJfGARGbAvs2axEnCKIeqjnJ61  # Encrypted password (ubuntu)
+  
+  # SSH configuration - allows SSH access with password
+  ssh:
+    install-server: true         # Install OpenSSH server
+    allow-pw: true               # Allow password authentication (for Packer)
+  
+  # Storage configuration - automatic partitioning
+  storage:
+    layout:
+      name: direct               # Use direct layout (single partition)
+  
+  # Packages to install during setup
+  packages:
+    - openssh-server             # SSH server for remote access
+    - cloud-init                 # Cloud initialization tool
+    - net-tools                  # Network utilities
+  
+  # Late commands - run at the end of installation
+  late-commands:
+    # Ensure SSH is enabled and will start on boot
+    - systemctl enable ssh
+    # Allow ubuntu user to use sudo without password (for Packer provisioning)
+    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
+    # Set proper permissions for sudoers file
+    - chmod 440 /target/etc/sudoers.d/ubuntu
