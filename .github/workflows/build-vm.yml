@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     
     permissions:
       contents: write  # Required to create releases and upload assets
@@ -17,11 +17,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # VirtualBox is required for Packer to build virtual machines
-      - name: Install VirtualBox
+      # VirtualBox comes pre-installed on GitHub macOS runners
+      - name: Verify VirtualBox installation
         run: |
-          sudo apt-get update
-          sudo apt-get install -y virtualbox
+          which VBoxManage || (echo "ERROR: VBoxManage not found" && exit 1)
+          echo "VirtualBox version:"
+          VBoxManage --version
       
       # Packer is the tool that builds the VM from our configuration
       - name: Setup Packer
@@ -40,8 +41,18 @@ jobs:
       # This is where Packer actually creates the virtual machine
       - name: Build VM with Packer
         env:
-          PACKER_LOG: TRACE
+          PACKER_LOG: 1
+          PACKER_LOG_PATH: packer.log
         run: packer build ubuntu-22.04.pkr.hcl
+      
+      # Upload Packer logs on failure for debugging
+      - name: Upload Packer logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: packer-logs
+          path: packer.log
+          retention-days: 7
       
       # This creates a new release and uploads the built VM as an asset (Always use "latest" tag - overwrites previous release)
       - name: Create Release
