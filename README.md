@@ -49,6 +49,12 @@ This repository contains automated build configurations for creating virtual mac
 
 #### Build Steps
 
+**Recommended: Use the build script** (provides informative progress messages):
+```bash
+./build.sh
+```
+
+**Or manually with Packer commands:**
 ```bash
 # Initialize Packer (downloads required plugins)
 packer init ubuntu-22.04.pkr.hcl
@@ -63,19 +69,13 @@ packer build ubuntu-22.04.pkr.hcl
 The build process will:
 1. Download the Ubuntu 22.04 ISO
 2. Create a virtual machine
-3. Perform automated installation ⏱️ **This takes 15-25 minutes during the "Waiting for SSH..." step**
+3. Perform automated installation ⏱️ **(15-25 minutes during "Waiting for SSH..." step)**
 4. Update all packages
 5. Compress the result into `ubuntu-22.04.tar.gz`
 
-**Note about the "Waiting for SSH to become available..." step:**
-- This step appears to take a long time (15-25 minutes) - this is normal!
-- During this wait, Ubuntu is actively installing in the background:
-  - Partitioning the disk
-  - Installing system packages
-  - Configuring SSH and users
-  - Finalizing the installation
-- SSH will only become available after Ubuntu completes installation and reboots
-- The process is NOT stuck - it's just waiting for the installation to complete
+> [!NOTE]
+> The "Waiting for SSH to become available..." step takes 15-25 minutes while Ubuntu installs in the background.
+> This is normal - the process is NOT stuck! Use `./build.sh` for detailed progress information.
 
 ### How to Build with GitHub Actions
 
@@ -92,7 +92,7 @@ The workflow will:
 - Create a new release
 - Upload the VM as a downloadable artifact
 
-⏱️ The build process takes approximately 30-40 minutes (including 15-25 minutes for the automated installation).
+⏱️ The build process takes approximately 20-30 minutes.
 
 ### How to Use the Built VM
 

@@ -39,7 +39,22 @@ jobs:
       
       # This is where Packer actually creates the virtual machine
       - name: Build VM with Packer
-        run: packer build ubuntu-22.04.pkr.hcl
+        run: |
+          echo ""
+          echo "════════════════════════════════════════════════════════════════════════════════"
+          echo "📋 IMPORTANT: The build includes a 15-25 minute SSH wait step"
+          echo "════════════════════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "When you see: 'Waiting for SSH to become available...'"
+          echo "This is EXPECTED while Ubuntu performs automated installation:"
+          echo "  • Partitioning disk and installing packages"
+          echo "  • Configuring users and SSH"
+          echo "  • System finalization and reboot"
+          echo ""
+          echo "The process is NOT stuck - installation is running in the background!"
+          echo "════════════════════════════════════════════════════════════════════════════════"
+          echo ""
+          packer build ubuntu-22.04.pkr.hcl
       
       # This creates a new release and uploads the built VM as an asset (Always use "latest" tag - overwrites previous release)
       - name: Create Release
