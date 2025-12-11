@@ -105,14 +105,15 @@ jobs:
             
             ## Details
             - **OS**: Ubuntu 22.04 LTS Server
-            - **Format**: QCOW2 (compressed in tar.gz)
+            - **Format**: OVA (VirtualBox VM, compressed in tar.gz)
             - **Build Date**: $(date +'%Y-%m-%d %H:%M:%S UTC')
             - **Triggered by**: @${{ github.actor }}
             
             ## How to Use
             1. Download the `ubuntu-22.04.tar.gz` file
             2. Extract: `tar -xzf ubuntu-22.04.tar.gz`
-            3. Use with QEMU/KVM or import into your virtualization platform
+            3. Import the `.ova` file into VirtualBox or other virtualization platform
+            4. For VirtualBox: Double-click the .ova file or use File → Import Appliance
             
             ## Default Credentials
             - **Username**: ubuntu
