@@ -1,0 +1,80 @@
+# GitHub Copilot Setup Steps
+# This file contains the setup and build steps that GitHub Copilot agent can run in its own environment
+# These steps mirror the CI workflow defined in .github/workflows/build-vm.yml
+
+name: Copilot Setup Steps for Building Ubuntu 22.04 VM
+
+# Prerequisites: Ubuntu-based environment with sudo access
+
+steps:
+  # Step 1: Checkout repository
+  # This is typically handled by the Copilot agent automatically
+  - name: Checkout repository
+    description: "Clone or ensure the repository is available in the working directory"
+    commands:
+      - git clone https://github.com/CraigBuilds/HLCS-Provisioning.git
+      - cd HLCS-Provisioning
+    notes: "If repository is already checked out, skip the git clone command"
+
+  # Step 2: Install VirtualBox
+  # VirtualBox is required for Packer to build virtual machines
+  - name: Install VirtualBox
+    description: "Install VirtualBox for VM creation"
+    commands:
+      - sudo apt-get update
+      - sudo apt-get install -y virtualbox
+    notes: "Requires sudo access and Ubuntu/Debian-based system"
+
+  # Step 3: Setup Packer
+  # Install Packer (HashiCorp's infrastructure automation tool)
+  - name: Setup Packer
+    description: "Install Packer tool for building VMs"
+    commands:
+      - wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      - echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+      - sudo apt-get update
+      - sudo apt-get install -y packer
+    notes: "Installs the latest version of Packer from HashiCorp's official repository"
+
+  # Step 4: Initialize Packer
+  # Download required Packer plugins
+  - name: Initialize Packer
+    description: "Download required Packer plugins"
+    commands:
+      - packer init ubuntu-22.04.pkr.hcl
+    notes: "This downloads the VirtualBox plugin specified in the .pkr.hcl file"
+
+  # Step 5: Validate Packer template
+  # Check the Packer configuration for syntax errors
+  - name: Validate Packer template
+    description: "Validate the Packer configuration file"
+    commands:
+      - packer validate ubuntu-22.04.pkr.hcl
+    notes: "This ensures the .pkr.hcl file has no syntax errors before building"
+
+  # Step 6: Build VM with Packer
+  # This is the main build step that creates the virtual machine
+  - name: Build VM with Packer
+    description: "Build the Ubuntu 22.04 virtual machine"
+    commands:
+      - packer build ubuntu-22.04.pkr.hcl
+    notes: "This process takes approximately 20-30 minutes. The output will be a compressed .tar.gz file containing the VM."
+    expected_output: "ubuntu-22.04.tar.gz"
+
+# Additional Information
+requirements:
+  - Operating System: Ubuntu/Debian-based Linux
+  - Disk Space: At least 20GB free
+  - Memory: At least 4GB RAM recommended
+  - Permissions: sudo access required
+  - Network: Internet connection for downloading ISO and packages
+
+output:
+  - File: ubuntu-22.04.tar.gz
+  - Description: Compressed OVA file containing the Ubuntu 22.04 virtual machine
+  - Location: Current working directory
+
+usage:
+  - Run each step in sequence
+  - Ensure each step completes successfully before proceeding to the next
+  - The final output file can be extracted and imported into VirtualBox or other virtualization platforms
