@@ -29,6 +29,17 @@ jobs:
         with:
           version: 'latest'
       
+      # Cache the Ubuntu ISO to speed up subsequent builds
+      # Packer stores downloaded ISOs in ~/.cache/packer
+      - name: Cache Packer ISO
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/packer
+          # Cache key includes ISO checksum to invalidate when ISO changes
+          key: packer-iso-${{ hashFiles('ubuntu-22.04.pkr.hcl') }}
+          restore-keys: |
+            packer-iso-
+      
       # This downloads any required Packer plugins
       - name: Initialize Packer
         run: packer init ubuntu-22.04.pkr.hcl
