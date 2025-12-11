@@ -15,14 +15,8 @@ autoinstall:
   keyboard:
     layout: us
   
-  # Network configuration - use DHCP for automatic network setup
-  network:
-    network:
-      version: 2
-      ethernets:
-        # Configure the first network interface
-        enp1s0:
-          dhcp4: true
+  # Network configuration - use automatic DHCP on first NIC (default behavior)
+  # No explicit network configuration needed - installer will configure DHCP automatically
   
   # Identity configuration - creates the default user account
   identity:
