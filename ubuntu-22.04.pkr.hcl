@@ -42,7 +42,7 @@ source "virtualbox-iso" "ubuntu" {
   
   # Checksum to verify the ISO file integrity (prevents corrupted downloads)
   # This is the SHA256 hash for Ubuntu 22.04.5 Desktop
-  iso_checksum = "sha256:836b9781c2fc78342bc6a44e9118a314989442f80d8c691218e2299472c5f398"
+  iso_checksum = "sha256:bfd1cee02bc4f35db939e69b934ba49a39a378797ce9aee20f6e3e3e728fefbf"
   
   # Output directory where the built VM will be stored
   output_directory = "output-${var.vm_name}"
