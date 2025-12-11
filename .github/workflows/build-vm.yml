@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: macos-latest
+    runs-on: macos-15-intel
     
     permissions:
       contents: write  # Required to create releases and upload assets
@@ -17,8 +17,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # Install VirtualBox on macOS using Homebrew
+      # Check if VirtualBox is already installed
+      - name: Check VirtualBox
+        id: check-vbox
+        run: |
+          if command -v VBoxManage &>/dev/null; then
+            echo "VirtualBox is already installed"
+            echo "installed=true" >> $GITHUB_OUTPUT
+            VBoxManage --version
+          else
+            echo "VirtualBox not found"
+            echo "installed=false" >> $GITHUB_OUTPUT
+          fi
+      
+      # Install VirtualBox on macOS using Homebrew (only if not already installed)
       - name: Install VirtualBox
+        if: steps.check-vbox.outputs.installed != 'true'
         run: |
           brew install --cask virtualbox
           echo "VirtualBox version:"

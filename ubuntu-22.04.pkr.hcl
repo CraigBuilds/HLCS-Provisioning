@@ -76,7 +76,7 @@ source "virtualbox-iso" "ubuntu" {
   ]
   
   # Boot wait time - how long to wait before sending boot_command
-  boot_wait = "5s"
+  boot_wait = "10s"
   
   # HTTP directory to serve cloud-init configuration files
   # Packer starts a temporary web server to serve these files during installation
@@ -85,8 +85,10 @@ source "virtualbox-iso" "ubuntu" {
   # SSH configuration - Packer uses SSH to connect to the VM after installation
   ssh_username = "ubuntu"           # Default user created by autoinstall
   ssh_password = "ubuntu"           # Temporary password (should be changed in production)
-  ssh_timeout = "30m"               # Maximum time to wait for SSH to become available
-  ssh_handshake_attempts = 100      # Number of SSH connection attempts
+  ssh_timeout = "60m"               # Maximum time to wait for SSH to become available (increased for desktop install)
+  ssh_handshake_attempts = 500      # Number of SSH connection attempts (increased for stability)
+  ssh_wait_timeout = "60m"          # How long to wait for SSH to become available
+  ssh_pty = true                    # Request a PTY for the SSH connection (helps with some systems)
   
   # Shutdown command - run after build completes to cleanly shut down the VM
   # The sudo command requires the password, which is provided via echo

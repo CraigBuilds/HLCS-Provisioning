@@ -40,8 +40,13 @@ autoinstall:
   # Late commands - run at the end of installation
   late-commands:
     # Ensure SSH is enabled and will start on boot
-    - systemctl enable ssh
+    - curtin in-target --target=/target -- systemctl enable ssh
     # Allow ubuntu user to use sudo without password (for Packer provisioning)
     - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
     # Set proper permissions for sudoers file
     - chmod 440 /target/etc/sudoers.d/ubuntu
+    # Ensure SSH is configured to allow password authentication
+    - echo 'PasswordAuthentication yes' >> /target/etc/ssh/sshd_config
+    - echo 'PermitRootLogin no' >> /target/etc/ssh/sshd_config
+    # Wait for cloud-init to complete before finishing
+    - curtin in-target --target=/target -- touch /etc/cloud/cloud-init.disabled || true
