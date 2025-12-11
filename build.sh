@@ -39,8 +39,15 @@ echo "════════════════════════�
 echo ""
 echo "⏳ Total estimated build time: 30-40 minutes"
 echo ""
-echo "Press Ctrl+C to cancel, or press Enter to continue..."
-read -r
+if [ -t 0 ]; then
+  # Interactive terminal - wait for user input
+  echo "Press Ctrl+C to cancel, or press Enter to continue..."
+  read -r
+else
+  # Non-interactive (CI/automation) - auto-continue after 5 seconds
+  echo "Non-interactive mode detected - continuing in 5 seconds..."
+  sleep 5
+fi
 
 echo ""
 echo "🔧 Initializing Packer plugins..."
@@ -61,4 +68,3 @@ echo "✅ Build completed successfully!"
 echo "════════════════════════════════════════════════════════════════════════════════"
 echo ""
 echo "Output: ubuntu-22.04.tar.gz"
-echo ""
