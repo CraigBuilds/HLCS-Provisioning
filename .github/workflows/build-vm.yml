@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     
     permissions:
       contents: write  # Required to create releases and upload assets
@@ -17,12 +17,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # Install VirtualBox on macOS using Homebrew
-      - name: Install VirtualBox
+      # Install QEMU and tools for building and converting disk images
+      - name: Install QEMU
         run: |
-          brew install --cask virtualbox
-          echo "VirtualBox version:"
-          VBoxManage --version
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 qemu-utils
+          echo "QEMU version:"
+          qemu-system-x86_64 --version
+          echo "qemu-img version:"
+          qemu-img --version
       
       # Packer is the tool that builds the VM from our configuration
       - name: Setup Packer
@@ -38,11 +41,40 @@ jobs:
       - name: Validate Packer template
         run: packer validate ubuntu-22.04.pkr.hcl
       
-      # This is where Packer actually creates the virtual machine
+      # This is where Packer actually creates the virtual machine using QEMU
       - name: Build VM with Packer
         env:
           PACKER_LOG: TRACE
-        run: packer build ubuntu-22.04.pkr.hcl
+        run: |
+          packer build ubuntu-22.04.pkr.hcl
+          # Save packer logs for debugging
+          echo "Build completed. Checking output directory..."
+          ls -lah output-ubuntu-22.04/ || echo "Output directory not found"
+      
+      # Upload Packer logs as an artifact for debugging
+      - name: Upload Packer logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: packer-logs
+          path: packer.log
+          retention-days: 30
+      
+      # Convert the QEMU qcow2 disk image to VirtualBox VDI format
+      - name: Convert QEMU disk to VDI
+        run: |
+          echo "Converting QEMU disk to VDI format..."
+          qemu-img convert -O vdi output-ubuntu-22.04/ubuntu-22.04 ubuntu-22.04.vdi
+          echo "Conversion complete. File info:"
+          ls -lh ubuntu-22.04.vdi
+      
+      # Package the VDI file into a tar.gz archive
+      - name: Package VirtualBox disk
+        run: |
+          echo "Packaging VDI into tar.gz..."
+          tar -czf ubuntu-22.04.tar.gz ubuntu-22.04.vdi
+          echo "Package created. File info:"
+          ls -lh ubuntu-22.04.tar.gz
       
       # This creates a new release and uploads the built VM as an asset (Always use "latest" tag - overwrites previous release)
       - name: Create Release
@@ -53,24 +85,34 @@ jobs:
           body: |
             # Ubuntu 22.04 Virtual Machine
             
-            Automatically built with Packer on ${{ github.event.repository.updated_at }}
+            Automatically built with Packer using QEMU on ${{ github.event.repository.updated_at }}
             
             ## Details
-            - **OS**: Ubuntu 22.04 LTS Server
-            - **Format**: OVA (VirtualBox VM, compressed in tar.gz)
+            - **OS**: Ubuntu 22.04 LTS Desktop
+            - **Format**: VDI (VirtualBox disk image, compressed in tar.gz)
+            - **Build Method**: QEMU with conversion to VirtualBox-compatible VDI
             - **Build Date**: $(date +'%Y-%m-%d %H:%M:%S UTC')
             - **Triggered by**: @${{ github.actor }}
             
             ## How to Use
             1. Download the `ubuntu-22.04.tar.gz` file
             2. Extract: `tar -xzf ubuntu-22.04.tar.gz`
-            3. Import the `.ova` file into VirtualBox or other virtualization platform
-            4. For VirtualBox: Double-click the .ova file or use File → Import Appliance
+            3. In VirtualBox:
+               - Create a new VM (Type: Linux, Version: Ubuntu 64-bit)
+               - When prompted for a hard disk, select "Use an existing virtual hard disk file"
+               - Choose the extracted `ubuntu-22.04.vdi` file
+               - Adjust VM settings as needed (RAM, CPU, etc.)
+               - Start the VM
             
             ## Default Credentials
             - **Username**: ubuntu
             - **Password**: ubuntu
             - **Note**: Change the password after first login!
+            
+            ## Technical Notes
+            - Built with QEMU for reliable CI/CD on GitHub Actions
+            - Disk image converted to VDI format for VirtualBox compatibility
+            - No VirtualBox Guest Additions (install manually if needed)
           draft: false
           prerelease: false
           files: |
