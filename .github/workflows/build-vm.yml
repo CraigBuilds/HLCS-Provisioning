@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     
     permissions:
       contents: write  # Required to create releases and upload assets
@@ -20,8 +20,7 @@ jobs:
       # VirtualBox is required for Packer to build virtual machines
       - name: Install VirtualBox
         run: |
-          sudo apt-get update
-          sudo apt-get install -y virtualbox
+          brew install --cask virtualbox
       
       # Packer is the tool that builds the VM from our configuration
       - name: Setup Packer

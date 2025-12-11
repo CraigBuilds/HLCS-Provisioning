@@ -20,8 +20,8 @@ autoinstall:
     network:
       version: 2
       ethernets:
-        # Configure the first network interface
-        enp1s0:
+        # Configure the first network interface (VirtualBox NAT adapter)
+        enp0s3:
           dhcp4: true
   
   # Identity configuration - creates the default user account
