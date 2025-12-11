@@ -84,6 +84,8 @@ The workflow will:
 
 ⏱️ The build process takes approximately 20-30 minutes.
 
+💡 **Performance Note**: The workflow caches the Ubuntu ISO (~4.7GB) to speed up subsequent builds. The first build will download the ISO, but subsequent builds will reuse the cached version, saving significant time.
+
 ### How to Use the Built VM
 
 After downloading the release:

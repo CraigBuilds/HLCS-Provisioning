@@ -30,13 +30,15 @@ jobs:
           version: 'latest'
       
       # Cache the Ubuntu ISO to speed up subsequent builds
-      # Packer stores downloaded ISOs in ~/.cache/packer
+      # Packer stores downloaded ISOs in ~/.cache/packer (~4.7GB for Ubuntu 22.04.5)
+      # This avoids re-downloading the ISO on every workflow run
       - name: Cache Packer ISO
         uses: actions/cache@v4
         with:
           path: ~/.cache/packer
-          # Cache key includes ISO checksum to invalidate when ISO changes
+          # Cache key based on Packer config hash - invalidates if config changes
           key: packer-iso-${{ hashFiles('ubuntu-22.04.pkr.hcl') }}
+          # Fallback to use any packer-iso cache if exact match not found
           restore-keys: |
             packer-iso-
       
