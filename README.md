@@ -92,7 +92,7 @@ The workflow will:
 - Create a new release
 - Upload the VM as a downloadable artifact
 
-⏱️ The build process takes approximately 20-30 minutes.
+⏱️ The build process takes approximately 30-40 minutes (including 15-25 minutes for automated installation).
 
 ### How to Use the Built VM
 
