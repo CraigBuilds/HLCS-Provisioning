@@ -39,7 +39,7 @@ jobs:
       
       # This is where Packer actually creates the virtual machine (debug for more verbose logging)
       - name: Build VM with Packer
-        run: packer build ubuntu-22.04.pkr.hcl -debug
+        run: packer build -debug ubuntu-22.04.pkr.hcl
       
       # This creates a new release and uploads the built VM as an asset (Always use "latest" tag - overwrites previous release)
       - name: Create Release
