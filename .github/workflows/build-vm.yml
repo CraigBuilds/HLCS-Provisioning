@@ -57,8 +57,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: packer-logs
-          path: packer.log
+          path: |
+            packer.log
+            *.log
           retention-days: 30
+          if-no-files-found: warn
       
       # Convert the QEMU qcow2 disk image to VirtualBox VDI format
       - name: Convert QEMU disk to VDI
@@ -91,7 +94,7 @@ jobs:
             - **OS**: Ubuntu 22.04 LTS Desktop
             - **Format**: VDI (VirtualBox disk image, compressed in tar.gz)
             - **Build Method**: QEMU with conversion to VirtualBox-compatible VDI
-            - **Build Date**: $(date +'%Y-%m-%d %H:%M:%S UTC')
+            - **Workflow Run**: ${{ github.run_id }}
             - **Triggered by**: @${{ github.actor }}
             
             ## How to Use

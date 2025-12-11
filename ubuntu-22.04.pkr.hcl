@@ -187,6 +187,7 @@ build {
   # Sources to build from
   # Using QEMU builder for CI (works reliably on GitHub Actions ubuntu-latest)
   # The VirtualBox builder above is kept for local builds if needed
+  # To use VirtualBox locally, change this line to: sources = ["source.virtualbox-iso.ubuntu"]
   sources = ["source.qemu.ubuntu"]
   
   # Provisioner: shell commands to run inside the VM after installation
