@@ -15,15 +15,6 @@ autoinstall:
   keyboard:
     layout: us
   
-  # Network configuration - use DHCP for automatic network setup
-  network:
-    network:
-      version: 2
-      ethernets:
-        # Configure the first network interface
-        enp1s0:
-          dhcp4: true
-  
   # Identity configuration - creates the default user account
   identity:
     hostname: ubuntu-vm          # Name of the virtual machine
