@@ -41,18 +41,8 @@ jobs:
       # This is where Packer actually creates the virtual machine
       - name: Build VM with Packer
         env:
-          PACKER_LOG: 1
-          PACKER_LOG_PATH: packer.log
+          PACKER_LOG: TRACE
         run: packer build ubuntu-22.04.pkr.hcl
-      
-      # Upload Packer logs on failure for debugging
-      - name: Upload Packer logs
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: packer-logs
-          path: packer.log
-          retention-days: 7
       
       # This creates a new release and uploads the built VM as an asset (Always use "latest" tag - overwrites previous release)
       - name: Create Release
