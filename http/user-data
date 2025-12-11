@@ -1,10 +1,14 @@
 #cloud-config
 # This is a cloud-init configuration file for Ubuntu autoinstall
-# It automates the Ubuntu server installation process
+# It automates the Ubuntu desktop installation process
 
 # Autoinstall version - specifies the autoinstall format version
 autoinstall:
   version: 1
+  
+  # Source - specify to install Ubuntu Desktop
+  source:
+    id: ubuntu-desktop
   
   # Locale and keyboard settings
   locale: en_US.UTF-8

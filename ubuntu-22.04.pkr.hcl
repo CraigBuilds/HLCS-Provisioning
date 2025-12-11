@@ -37,22 +37,22 @@ source "virtualbox-iso" "ubuntu" {
   # Name of the VM being built (used in output messages and VirtualBox)
   vm_name = "${var.vm_name}"
   
-  # ISO image URL - this downloads the Ubuntu 22.04 server installation ISO
-  iso_url = "https://releases.ubuntu.com/jammy/ubuntu-${var.ubuntu_version}-live-server-amd64.iso"
+  # ISO image URL - this downloads the Ubuntu 22.04 desktop installation ISO
+  iso_url = "http://releases.ubuntu.com/${var.ubuntu_version}/ubuntu-${var.ubuntu_version}-desktop-amd64.iso"
   
   # Checksum to verify the ISO file integrity (prevents corrupted downloads)
-  # This is the SHA256 hash for Ubuntu 22.04.5
-  iso_checksum = "sha256:e70b1a3e2a3836dfd78fee488a7a35699252c696b6dcc727778ae9381ca051cb"
+  # This is the SHA256 hash for Ubuntu 22.04.5 Desktop
+  iso_checksum = "sha256:836b9781c2fc78342bc6a44e9118a314989442f80d8c691218e2299472c5f398"
   
   # Output directory where the built VM will be stored
   output_directory = "output-${var.vm_name}"
   
   # Disk configuration
-  disk_size = 20480              # Size of the virtual hard disk in MB (20GB)
+  disk_size = 30720              # Size of the virtual hard disk in MB (30GB - desktop needs more space)
   hard_drive_interface = "sata"  # SATA interface for the hard drive
   
   # VM hardware configuration
-  memory = 2048                  # RAM in megabytes (2GB)
+  memory = 4096                  # RAM in megabytes (4GB - desktop needs more RAM)
   cpus = 2                       # Number of virtual CPU cores
   
   # Guest OS type - tells VirtualBox what OS to expect
