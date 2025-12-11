@@ -71,6 +71,11 @@ The build process will:
 
 The easiest way to build the VM is using the automated GitHub Actions workflow:
 
+**⚠️ Prerequisites**: The workflow requires a self-hosted runner with:
+- VirtualBox installed
+- Hardware virtualization enabled (VT-x/AMD-V)
+- At least 20GB free disk space
+
 1. Go to the **Actions** tab in this repository
 2. Click on **"Build Ubuntu 22.04 VM"** workflow
 3. Click **"Run workflow"** button
