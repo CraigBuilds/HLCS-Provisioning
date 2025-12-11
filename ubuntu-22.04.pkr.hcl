@@ -119,8 +119,8 @@ source "qemu" "ubuntu" {
   iso_url = "https://releases.ubuntu.com/${var.ubuntu_version}/ubuntu-${var.ubuntu_version}-live-server-amd64.iso"
   
   # Checksum to verify the ISO file integrity
-  # This is the SHA256 hash for Ubuntu 22.04.5 Live Server (verified from official releases)
-  iso_checksum = "sha256:08be780e6f770e0a541cb066ceeb414558e356e4e5e1c0b82ccbb327ac19daed"
+  # This is the SHA256 hash for Ubuntu 22.04.5 Live Server
+  iso_checksum = "sha256:9bc6028870aef3f74f4e16b900008179e78b130e6b0b9a140635434a46aa98b0"
   
   # Output directory where the built VM will be stored
   output_directory = "output-${var.vm_name}"
