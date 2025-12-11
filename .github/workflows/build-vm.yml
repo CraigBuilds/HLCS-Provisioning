@@ -91,7 +91,7 @@ jobs:
             Automatically built with Packer using QEMU on ${{ github.event.repository.updated_at }}
             
             ## Details
-            - **OS**: Ubuntu 22.04 LTS Desktop
+            - **OS**: Ubuntu 22.04 LTS Server
             - **Format**: VDI (VirtualBox disk image, compressed in tar.gz)
             - **Build Method**: QEMU with conversion to VirtualBox-compatible VDI
             - **Workflow Run**: ${{ github.run_id }}

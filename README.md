@@ -25,10 +25,10 @@ This repository contains automated build configurations for creating virtual mac
 
 ### Features
 
-- **Base OS**: Ubuntu 22.04 LTS Desktop
+- **Base OS**: Ubuntu 22.04 LTS Server
 - **Format**: VDI (VirtualBox disk image)
 - **Size**: ~30GB disk space
-- **Memory**: 4GB RAM (configurable)
+- **Memory**: 2GB RAM (configurable)
 - **CPU**: 2 cores (configurable)
 - **Packages**: OpenSSH server, cloud-init
 
@@ -39,6 +39,7 @@ The VM is built using **QEMU** in CI (GitHub Actions) and then converted to Virt
 - Doesn't require nested virtualization
 - Produces VirtualBox-compatible disk images
 - Avoids VirtualBox ARM/x86 compatibility issues
+- Uses Ubuntu Server (not Desktop) for faster installation in software emulation
 
 ### Default Credentials
 

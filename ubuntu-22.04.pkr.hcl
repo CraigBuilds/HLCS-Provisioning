@@ -114,11 +114,13 @@ source "qemu" "ubuntu" {
   # Name of the VM being built
   vm_name = "${var.vm_name}"
   
-  # ISO image URL - same Ubuntu 22.04 desktop ISO as VirtualBox builder
-  iso_url = "https://releases.ubuntu.com/${var.ubuntu_version}/ubuntu-${var.ubuntu_version}-desktop-amd64.iso"
+  # ISO image URL - use Ubuntu Server for faster installation in QEMU
+  # Server ISO is much lighter and faster to install than Desktop
+  iso_url = "https://releases.ubuntu.com/${var.ubuntu_version}/ubuntu-${var.ubuntu_version}-live-server-amd64.iso"
   
   # Checksum to verify the ISO file integrity
-  iso_checksum = "sha256:bfd1cee02bc4f35db939e69b934ba49a39a378797ce9aee20f6e3e3e728fefbf"
+  # This is the SHA256 hash for Ubuntu 22.04.5 Live Server
+  iso_checksum = "sha256:9bc6028870aef3f74f4e16b900008179e78b130e6b0b9a140635434a46aa98b0"
   
   # Output directory where the built VM will be stored
   output_directory = "output-${var.vm_name}"
@@ -129,15 +131,15 @@ source "qemu" "ubuntu" {
   format = "qcow2"               # QEMU's native format, easily convertible to VDI
   
   # VM hardware configuration
-  memory = 4096                  # RAM in megabytes (4GB)
+  memory = 2048                  # RAM in megabytes (2GB - server needs less than desktop)
   cpus = 2                       # Number of virtual CPU cores
   
   # QEMU machine type - use standard x86_64 PC
   machine_type = "pc"
   
-  # Accelerator - use "none" for software virtualization (works on GitHub Actions)
-  # This allows QEMU to run without requiring KVM/nested virtualization
-  accelerator = "none"
+  # Accelerator - use "tcg" for software virtualization with thread-based CPU emulation
+  # This is faster than "none" and works on GitHub Actions without KVM
+  accelerator = "tcg"
   
   # Network configuration
   net_device = "virtio-net"
