@@ -27,7 +27,7 @@ variable "vm_name" {
 # Variable for Ubuntu version to make it easy to update
 variable "ubuntu_version" {
   type    = string
-  default = "22.04.3"
+  default = "22.04.5"
   description = "Ubuntu version to download and build"
 }
 
@@ -41,8 +41,8 @@ source "virtualbox-iso" "ubuntu" {
   iso_url = "https://releases.ubuntu.com/jammy/ubuntu-${var.ubuntu_version}-live-server-amd64.iso"
   
   # Checksum to verify the ISO file integrity (prevents corrupted downloads)
-  # This is the SHA256 hash for Ubuntu 22.04.3
-  iso_checksum = "sha256:a4acfda10b18da50e2ec50ccaf860d7f20b389df8765611142305c0e911d16fd"
+  # This is the SHA256 hash for Ubuntu 22.04.5
+  iso_checksum = "sha256:e70b1a3e2a3836dfd78fee488a7a35699252c696b6dcc727778ae9381ca051cb"
   
   # Output directory where the built VM will be stored
   output_directory = "output-${var.vm_name}"
