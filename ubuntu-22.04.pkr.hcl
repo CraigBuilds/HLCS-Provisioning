@@ -38,7 +38,7 @@ source "virtualbox-iso" "ubuntu" {
   vm_name = "${var.vm_name}"
   
   # ISO image URL - this downloads the Ubuntu 22.04 desktop installation ISO
-  iso_url = "http://releases.ubuntu.com/${var.ubuntu_version}/ubuntu-${var.ubuntu_version}-desktop-amd64.iso"
+  iso_url = "https://releases.ubuntu.com/${var.ubuntu_version}/ubuntu-${var.ubuntu_version}-desktop-amd64.iso"
   
   # Checksum to verify the ISO file integrity (prevents corrupted downloads)
   # This is the SHA256 hash for Ubuntu 22.04.5 Desktop
