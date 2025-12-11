@@ -15,8 +15,7 @@ autoinstall:
   keyboard:
     layout: us
   
-  # Network configuration - use automatic DHCP on first NIC (default behavior)
-  # No explicit network configuration needed - installer will configure DHCP automatically
+  # Network configuration uses automatic DHCP (default installer behavior)
   
   # Identity configuration - creates the default user account
   identity:

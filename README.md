@@ -72,8 +72,9 @@ The build process will:
 The easiest way to build the VM is using the automated GitHub Actions workflow:
 
 **⚠️ Prerequisites**: The workflow requires a self-hosted runner with:
-- VirtualBox installed
+- VirtualBox 6.0+ installed
 - Hardware virtualization enabled (VT-x/AMD-V)
+- Minimum 4GB RAM available for the VM
 - At least 20GB free disk space
 
 1. Go to the **Actions** tab in this repository
