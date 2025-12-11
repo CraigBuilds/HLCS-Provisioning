@@ -17,10 +17,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # VirtualBox comes pre-installed on GitHub macOS runners
-      - name: Verify VirtualBox installation
+      # Install VirtualBox on macOS using Homebrew
+      - name: Install VirtualBox
         run: |
-          which VBoxManage || (echo "ERROR: VBoxManage not found" && exit 1)
+          brew install --cask virtualbox
           echo "VirtualBox version:"
           VBoxManage --version
       
