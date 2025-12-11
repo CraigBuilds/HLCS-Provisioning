@@ -13,6 +13,11 @@ packer {
       version = ">= 1.0.0"
       source  = "github.com/hashicorp/virtualbox"
     }
+    # QEMU plugin for building virtual machines (used in CI)
+    qemu = {
+      version = ">= 1.0.0"
+      source  = "github.com/hashicorp/qemu"
+    }
   }
 }
 
@@ -102,14 +107,90 @@ source "virtualbox-iso" "ubuntu" {
   format = "ova"
 }
 
+# Source block for QEMU builder (used in CI)
+# The "qemu" builder creates virtual machines using QEMU emulation
+# This allows building x86_64 VMs on any platform without requiring VirtualBox
+source "qemu" "ubuntu" {
+  # Name of the VM being built
+  vm_name = "${var.vm_name}"
+  
+  # ISO image URL - use Ubuntu Server for faster installation in QEMU
+  # Server ISO is much lighter and faster to install than Desktop
+  iso_url = "https://releases.ubuntu.com/${var.ubuntu_version}/ubuntu-${var.ubuntu_version}-live-server-amd64.iso"
+  
+  # Checksum to verify the ISO file integrity
+  # This is the SHA256 hash for Ubuntu 22.04.5 Live Server
+  iso_checksum = "sha256:9bc6028870aef3f74f4e16b900008179e78b130e6b0b9a140635434a46aa98b0"
+  
+  # Output directory where the built VM will be stored
+  output_directory = "output-${var.vm_name}"
+  
+  # Disk configuration
+  disk_size = 30720              # Size of the virtual hard disk in MB (30GB)
+  disk_interface = "virtio"      # Use virtio for better performance
+  format = "qcow2"               # QEMU's native format, easily convertible to VDI
+  
+  # VM hardware configuration
+  memory = 2048                  # RAM in megabytes (2GB - server needs less than desktop)
+  cpus = 2                       # Number of virtual CPU cores
+  
+  # QEMU machine type - use standard x86_64 PC
+  machine_type = "pc"
+  
+  # Accelerator - use "tcg" for software virtualization with thread-based CPU emulation
+  # This is faster than "none" and works on GitHub Actions without KVM
+  accelerator = "tcg"
+  
+  # Network configuration
+  net_device = "virtio-net"
+  
+  # Boot configuration - reuse same autoinstall boot command as VirtualBox
+  boot_command = [
+    # Wait for boot menu
+    "<wait>",
+    # Press 'e' to edit boot parameters
+    "e<wait>",
+    # Navigate to the kernel line
+    "<down><down><down><end>",
+    # Add autoinstall parameters to the kernel command line
+    " autoinstall ds=nocloud-net\\;s=http://{{.HTTPIP}}:{{.HTTPPort}}/",
+    # Boot with the modified parameters
+    "<f10>"
+  ]
+  
+  # Boot wait time
+  boot_wait = "5s"
+  
+  # HTTP directory to serve cloud-init configuration files
+  http_directory = "http"
+  
+  # SSH configuration - same as VirtualBox builder
+  ssh_username = "ubuntu"
+  ssh_password = "ubuntu"
+  ssh_timeout = "30m"
+  ssh_handshake_attempts = 100
+  
+  # Shutdown command
+  shutdown_command = "echo 'ubuntu' | sudo -S shutdown -P now"
+  
+  # Headless mode - no GUI
+  headless = true
+  
+  # QEMU display - use none since we're running headless
+  display = "none"
+}
+
 # Build block defines what to do with the source
 # This is where we specify provisioners and post-processors
 build {
   # Name of the build for logging purposes
   name = "ubuntu-22.04-build"
   
-  # Sources to build from (references the source block above)
-  sources = ["source.virtualbox-iso.ubuntu"]
+  # Sources to build from
+  # Using QEMU builder for CI (works reliably on GitHub Actions ubuntu-latest)
+  # The VirtualBox builder above is kept for local builds if needed
+  # To use VirtualBox locally, change this line to: sources = ["source.virtualbox-iso.ubuntu"]
+  sources = ["source.qemu.ubuntu"]
   
   # Provisioner: shell commands to run inside the VM after installation
   # This updates the system and installs basic tools
@@ -127,11 +208,6 @@ build {
     ]
   }
   
-  # Post-processor: compress the output to make it smaller for distribution
-  post-processor "compress" {
-    # Output file name for the compressed VM
-    output = "${var.vm_name}.tar.gz"
-    # Compression algorithm (gzip is widely supported)
-    compression_level = 9
-  }
+  # Post-processor: compress is removed - we'll convert to VDI and compress in CI
+  # The QEMU builder produces a qcow2 disk that will be converted to VDI format
 }

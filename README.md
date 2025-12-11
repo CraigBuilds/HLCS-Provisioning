@@ -26,11 +26,20 @@ This repository contains automated build configurations for creating virtual mac
 ### Features
 
 - **Base OS**: Ubuntu 22.04 LTS Server
-- **Format**: OVA (VirtualBox VM)
-- **Size**: ~20GB disk space
+- **Format**: VDI (VirtualBox disk image)
+- **Size**: ~30GB disk space
 - **Memory**: 2GB RAM (configurable)
 - **CPU**: 2 cores (configurable)
 - **Packages**: OpenSSH server, cloud-init
+
+### Build Method
+
+The VM is built using **QEMU** in CI (GitHub Actions) and then converted to VirtualBox-compatible VDI format. This approach:
+- Works reliably on GitHub-hosted runners
+- Doesn't require nested virtualization
+- Produces VirtualBox-compatible disk images
+- Avoids VirtualBox ARM/x86 compatibility issues
+- Uses Ubuntu Server (not Desktop) for faster installation in software emulation
 
 ### Default Credentials
 
@@ -44,8 +53,8 @@ This repository contains automated build configurations for creating virtual mac
 #### Prerequisites
 
 - [Packer](https://www.packer.io/downloads) (>= 1.8.0)
-- VirtualBox installed on your system
-- At least 20GB of free disk space
+- Either VirtualBox OR QEMU installed on your system
+- At least 30GB of free disk space
 
 #### Build Steps
 
@@ -57,15 +66,25 @@ packer init ubuntu-22.04.pkr.hcl
 packer validate ubuntu-22.04.pkr.hcl
 
 # Build the VM
+# The template is configured to use QEMU by default (for CI compatibility)
+# To use VirtualBox instead, edit ubuntu-22.04.pkr.hcl and change:
+#   sources = ["source.qemu.ubuntu"]
+# to:
+#   sources = ["source.virtualbox-iso.ubuntu"]
 packer build ubuntu-22.04.pkr.hcl
 ```
 
 The build process will:
 1. Download the Ubuntu 22.04 ISO
-2. Create a virtual machine
+2. Create a virtual machine using QEMU (or VirtualBox if configured)
 3. Perform automated installation
 4. Update all packages
-5. Compress the result into `ubuntu-22.04.tar.gz`
+5. Output a disk image in `output-ubuntu-22.04/`
+
+Note: If building with QEMU locally, you can convert the output to VDI with:
+```bash
+qemu-img convert -O vdi output-ubuntu-22.04/ubuntu-22.04 ubuntu-22.04.vdi
+```
 
 ### How to Build with GitHub Actions
 
@@ -74,15 +93,15 @@ The easiest way to build the VM is using the automated GitHub Actions workflow:
 1. Go to the **Actions** tab in this repository
 2. Click on **"Build Ubuntu 22.04 VM"** workflow
 3. Click **"Run workflow"** button
-4. (Optional) Customize the VM name
-5. Click the green **"Run workflow"** button
+4. Click the green **"Run workflow"** button
 
 The workflow will:
-- Build the VM automatically
+- Build the VM automatically using QEMU on `ubuntu-latest` runners
+- Convert the disk image to VirtualBox-compatible VDI format
 - Create a new release
 - Upload the VM as a downloadable artifact
 
-⏱️ The build process takes approximately 20-30 minutes.
+⏱️ The build process takes approximately 30-45 minutes (QEMU software emulation is slower than hardware virtualization).
 
 ### How to Use the Built VM
 
@@ -92,15 +111,30 @@ After downloading the release:
 # Extract the VM
 tar -xzf ubuntu-22.04.tar.gz
 
-# Import into VirtualBox
-# Double-click the .ova file, or use the command line:
-VBoxManage import ubuntu-22.04.ova
+# You'll get a ubuntu-22.04.vdi file
 ```
 
-Or import the OVA file into your preferred virtualization platform:
-- **VirtualBox**: File → Import Appliance → Select the .ova file
-- **VMware**: File → Open → Select the .ova file
-- **Other platforms**: Most virtualization platforms support OVA format
+**To import into VirtualBox:**
+
+1. Open VirtualBox
+2. Click **"New"** to create a new virtual machine
+3. Name: Ubuntu 22.04 (or any name you prefer)
+4. Type: Linux
+5. Version: Ubuntu (64-bit)
+6. Click **"Next"**
+7. When prompted for a hard disk, select **"Use an existing virtual hard disk file"**
+8. Click the folder icon and browse to select `ubuntu-22.04.vdi`
+9. Click **"Create"**
+10. Adjust settings if needed (RAM, CPU, network, etc.)
+11. Start the VM
+
+**Recommended VM Settings:**
+- RAM: 4096 MB (4GB) or more
+- CPUs: 2 or more
+- Network: NAT or Bridged Adapter
+
+**Alternative:** You can also attach the VDI to an existing VM:
+- Settings → Storage → Controller: SATA → Add Hard Disk → Choose Existing Disk → Select the VDI file
 
 ## Learning Resources
 
