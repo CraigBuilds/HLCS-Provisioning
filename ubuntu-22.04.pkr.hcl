@@ -62,6 +62,7 @@ source "virtualbox-iso" "ubuntu" {
   # Boot configuration
   # The boot_command sends keystrokes during installation to automate it
   # This configures the Ubuntu autoinstall (cloud-init based installation)
+  # After these commands execute, Ubuntu will begin the automated installation process
   boot_command = [
     # Wait for boot menu
     "<wait>",
@@ -71,7 +72,7 @@ source "virtualbox-iso" "ubuntu" {
     "<down><down><down><end>",
     # Add autoinstall parameters to the kernel command line
     " autoinstall ds=nocloud-net\\;s=http://{{.HTTPIP}}:{{.HTTPPort}}/",
-    # Boot with the modified parameters
+    # Boot with the modified parameters (starts the 15-25 minute autoinstall process)
     "<f10>"
   ]
   
@@ -83,9 +84,17 @@ source "virtualbox-iso" "ubuntu" {
   http_directory = "http"
   
   # SSH configuration - Packer uses SSH to connect to the VM after installation
+  # IMPORTANT: The "Waiting for SSH to become available..." step takes 15-25 minutes
+  # During this time, Ubuntu is performing the autoinstall process in the background:
+  #   1. Partitioning the disk
+  #   2. Installing the base system and packages
+  #   3. Configuring users and SSH
+  #   4. Running late-commands to finalize setup
+  # SSH will not be available until autoinstall completes and the system reboots
+  # This is normal behavior - the process is NOT stuck!
   ssh_username = "ubuntu"           # Default user created by autoinstall
   ssh_password = "ubuntu"           # Temporary password (should be changed in production)
-  ssh_timeout = "30m"               # Maximum time to wait for SSH to become available
+  ssh_timeout = "30m"               # Maximum time to wait for SSH (autoinstall typically takes 15-25 minutes)
   ssh_handshake_attempts = 100      # Number of SSH connection attempts
   
   # Shutdown command - run after build completes to cleanly shut down the VM
