@@ -33,15 +33,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      # Step 2: Install QEMU
-      # QEMU is required for Packer to build virtual machines
-      - name: Install QEMU
+      # Step 2: Install VirtualBox
+      # VirtualBox is required for Packer to build virtual machines
+      - name: Install VirtualBox
         run: |
           # Update package lists
           sudo apt-get update
-          # Install QEMU and related tools
+          # Install VirtualBox
           # -y flag automatically answers yes to prompts
-          sudo apt-get install -y qemu-system-x86 qemu-utils
+          sudo apt-get install -y virtualbox
       
       # Step 3: Install Packer
       # Packer is the tool that builds the VM from our configuration

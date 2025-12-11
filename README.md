@@ -26,11 +26,11 @@ This repository contains automated build configurations for creating virtual mac
 ### Features
 
 - **Base OS**: Ubuntu 22.04 LTS Server
-- **Format**: QCOW2 (QEMU disk image)
+- **Format**: OVA (VirtualBox VM)
 - **Size**: ~20GB disk space
 - **Memory**: 2GB RAM (configurable)
 - **CPU**: 2 cores (configurable)
-- **Packages**: OpenSSH server, cloud-init, qemu-guest-agent
+- **Packages**: OpenSSH server, cloud-init
 
 ### Default Credentials
 
@@ -44,7 +44,7 @@ This repository contains automated build configurations for creating virtual mac
 #### Prerequisites
 
 - [Packer](https://www.packer.io/downloads) (>= 1.8.0)
-- QEMU/KVM installed on your system
+- VirtualBox installed on your system
 - At least 20GB of free disk space
 
 #### Build Steps
@@ -92,19 +92,15 @@ After downloading the release:
 # Extract the VM
 tar -xzf ubuntu-22.04.tar.gz
 
-# Run with QEMU (example)
-qemu-system-x86_64 \
-  -enable-kvm \
-  -m 2048 \
-  -smp 2 \
-  -drive file=ubuntu-22.04.qcow2,format=qcow2 \
-  -net nic -net user
+# Import into VirtualBox
+# Double-click the .ova file, or use the command line:
+VBoxManage import ubuntu-22.04.ova
 ```
 
-Or import the QCOW2 image into your preferred virtualization platform:
-- **libvirt/virt-manager**: Import as existing disk
-- **Proxmox**: Convert and import as VM disk
-- **OpenStack**: Upload as Glance image
+Or import the OVA file into your preferred virtualization platform:
+- **VirtualBox**: File → Import Appliance → Select the .ova file
+- **VMware**: File → Open → Select the .ova file
+- **Other platforms**: Most virtualization platforms support OVA format
 
 ## Learning Resources
 

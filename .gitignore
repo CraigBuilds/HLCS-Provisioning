@@ -11,6 +11,8 @@ packer_cache/
 *.vmdk
 *.vdi
 *.vhd
+*.ova
+*.ovf
 
 # Packer log files
 packer.log

@@ -8,10 +8,10 @@ packer {
   
   # Required plugins - Packer will automatically download these
   required_plugins {
-    # QEMU plugin for building virtual machines
-    qemu = {
+    # VirtualBox plugin for building virtual machines
+    virtualbox = {
       version = ">= 1.0.0"
-      source  = "github.com/hashicorp/qemu"
+      source  = "github.com/hashicorp/virtualbox"
     }
   }
 }
@@ -32,10 +32,10 @@ variable "ubuntu_version" {
 }
 
 # Source block defines where to get the base image and how to build it
-# The "qemu" builder creates virtual machines using QEMU/KVM
-source "qemu" "ubuntu" {
-  # Name of the VM being built (used in output messages)
-  vm_name = "${var.vm_name}.qcow2"
+# The "virtualbox-iso" builder creates virtual machines using VirtualBox
+source "virtualbox-iso" "ubuntu" {
+  # Name of the VM being built (used in output messages and VirtualBox)
+  vm_name = "${var.vm_name}"
   
   # ISO image URL - this downloads the Ubuntu 22.04 server installation ISO
   iso_url = "https://releases.ubuntu.com/jammy/ubuntu-${var.ubuntu_version}-live-server-amd64.iso"
@@ -48,19 +48,16 @@ source "qemu" "ubuntu" {
   output_directory = "output-${var.vm_name}"
   
   # Disk configuration
-  disk_size = "20G"           # Size of the virtual hard disk
-  format = "qcow2"            # QEMU disk image format (compressed, space-efficient)
-  accelerator = "kvm"         # Use KVM for hardware acceleration (faster builds)
+  disk_size = 20480              # Size of the virtual hard disk in MB (20GB)
+  hard_drive_interface = "sata"  # SATA interface for the hard drive
   
   # VM hardware configuration
-  memory = 2048               # RAM in megabytes (2GB)
-  cpus = 2                    # Number of virtual CPU cores
+  memory = 2048                  # RAM in megabytes (2GB)
+  cpus = 2                       # Number of virtual CPU cores
   
-  # Network configuration - use user-mode networking (no special privileges needed)
-  net_device = "virtio-net"
-  
-  # Disk interface - virtio is faster than IDE for virtual machines
-  disk_interface = "virtio"
+  # Guest OS type - tells VirtualBox what OS to expect
+  # This optimizes settings for Ubuntu 64-bit
+  guest_os_type = "Ubuntu_64"
   
   # Boot configuration
   # The boot_command sends keystrokes during installation to automate it
@@ -98,10 +95,11 @@ source "qemu" "ubuntu" {
   # Headless mode - set to false if you want to see the VM console during build
   headless = true
   
-  # VNC configuration (for remote viewing if headless = false)
-  vnc_bind_address = "127.0.0.1"
-  vnc_port_min = 5900
-  vnc_port_max = 5900
+  # VirtualBox Guest Additions - not installed by default for minimal setup
+  guest_additions_mode = "disable"
+  
+  # Export format - OVF is the standard format for VirtualBox VMs
+  format = "ova"
 }
 
 # Build block defines what to do with the source
@@ -111,7 +109,7 @@ build {
   name = "ubuntu-22.04-build"
   
   # Sources to build from (references the source block above)
-  sources = ["source.qemu.ubuntu"]
+  sources = ["source.virtualbox-iso.ubuntu"]
   
   # Provisioner: shell commands to run inside the VM after installation
   # This updates the system and installs basic tools
@@ -124,8 +122,6 @@ build {
       "sudo apt-get update",
       # Upgrade all packages to latest versions
       "sudo apt-get upgrade -y",
-      # Install useful utilities
-      "sudo apt-get install -y qemu-guest-agent",
       # Clean up package cache to reduce image size
       "sudo apt-get clean"
     ]
