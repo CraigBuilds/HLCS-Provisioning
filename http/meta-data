@@ -1,0 +1,4 @@
+# meta-data file for cloud-init
+# This file is required by cloud-init but can be empty for basic configurations
+# It can contain instance-specific metadata like instance-id and hostname
+# For this minimal setup, we leave it empty as all config is in user-data
